@@ -60,7 +60,7 @@ public class FilmController {
         log.info("Обновление фильма: {}", newFilm.getName());
 
         if (newFilm.getId() == null || !films.containsKey(newFilm.getId())) {
-            log.warn("Id не указан или фильма с таким Id нет: {}", newFilm.getId());
+            log.warn("Id не указан или фильма с таким Id НЕТ: {}", newFilm.getId());
             throw new ConditionsNotMetException("Id не указан или такого Id нет");
         }
 
