@@ -4,8 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
-import ru.yandex.practicum.filmorate.exception.DateValidationException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -33,19 +32,19 @@ public class UserController {
 
         if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
             log.warn("Передан некорректный email: {}", user.getEmail());
-            throw new ConditionsNotMetException("Email не может быть пустой и должна содержать символ @");
+            throw new ValidationException("Email не может быть пустой и должна содержать символ @");
         }
         if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
             log.warn("Передан некорректный login: {}", user.getLogin());
-            throw new ConditionsNotMetException("Логин не может быть пустым и содержать пробелы");
+            throw new ValidationException("Логин не может быть пустым и содержать пробелы");
         }
         if (user.getName() == null || user.getName().isBlank()) {
             log.info("Имя пользователя задано автоматически: {}", user.getLogin());
-            user.setName(user.getLogin());
+            user.setName(loginOfName(user));
         }
         if (user.getBirthday().isAfter(LocalDate.now())) {
             log.warn("Некоректная дата рождения: {}", user.getBirthday());
-            throw new DateValidationException("Дата рождения не может быть в будущем");
+            throw new ValidationException("Дата рождения не может быть в будущем");
         }
         user.setId(getNextIdUser());
         users.put(user.getId(), user);
@@ -59,7 +58,7 @@ public class UserController {
 
         if (newUser.getId() == null || !users.containsKey(newUser.getId())) {
             log.warn("Id не указан или пользователя с таким Id нет: {}", newUser.getId());
-            throw new ConditionsNotMetException("Id не указан или пользователя с таким Id нет");
+            throw new ValidationException("Id не указан или пользователя с таким Id нет");
         }
         User oldUser = users.get(newUser.getId());
 
@@ -71,9 +70,9 @@ public class UserController {
             log.info("login обновлен");
             oldUser.setLogin(newUser.getLogin());
         }
-        if (newUser.getName() != null) {
+        if (newUser.getName() != null && !newUser.getName().isBlank()) {
             log.info("имя пользователя обновленно");
-            oldUser.setName(newUser.getName());
+            oldUser.setName(loginOfName(newUser));
         }
         if (newUser.getBirthday() != null && newUser.getBirthday().isBefore(LocalDate.now())) {
             log.info("дата рождения обновлена");
@@ -84,6 +83,13 @@ public class UserController {
         return oldUser;
     }
 
+    private String loginOfName(User user) {
+        String newName = user.getName();
+        if (user.getName() == null || user.getName().isBlank()) {
+            newName = user.getLogin();
+        }
+        return newName;
+    }
 
     private long getNextIdUser() {
         long currentMaxId = users.keySet()

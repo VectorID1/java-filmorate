@@ -4,10 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
-import ru.yandex.practicum.filmorate.exception.DateValidationException;
-import ru.yandex.practicum.filmorate.exception.InvalidDurationException;
-import ru.yandex.practicum.filmorate.exception.LengthExceededException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
@@ -35,19 +32,19 @@ public class FilmController {
 
         if (film.getName() == null || film.getName().isBlank()) {
             log.warn("Передано пустое название фильма");
-            throw new ConditionsNotMetException("Название не может быть пустым");
+            throw new ValidationException("Название не может быть пустым");
         }
         if (film.getDescription().length() > 200) {
             log.warn("Превышение длинны описания: {} символов (Max 200)", film.getDescription().length());
-            throw new LengthExceededException("максимальная длина описания — 200 символов");
+            throw new ValidationException("максимальная длина описания — 200 символов");
         }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.warn("Неправильная дата релиза: {}", film.getReleaseDate());
-            throw new DateValidationException("Дата релиза - не раньше 28 декабря 1895 года");
+            throw new ValidationException("Дата релиза - не раньше 28 декабря 1895 года");
         }
         if (film.getDuration() <= 0) {
             log.warn("Некорректная продолжительность фильма: {}", film.getDuration());
-            throw new InvalidDurationException("Продолжительность фильма должна быть положительным числом");
+            throw new ValidationException("Продолжительность фильма должна быть положительным числом");
         }
         film.setId(getNextIdFilm());
         films.put(film.getId(), film);
@@ -61,12 +58,12 @@ public class FilmController {
 
         if (newFilm.getId() == null || !films.containsKey(newFilm.getId())) {
             log.warn("Id не указан или фильма с таким Id НЕТ: {}", newFilm.getId());
-            throw new ConditionsNotMetException("Id не указан или такого Id нет");
+            throw new ValidationException("Id не указан или такого Id нет");
         }
 
         Film oldFilm = films.get(newFilm.getId());
 
-        if (newFilm.getName() != null) {
+        if (newFilm.getName() != null || newFilm.getName().isBlank()) {
             log.info("Новое название фильма: {}", newFilm.getName());
             oldFilm.setName(newFilm.getName());
         }
@@ -88,7 +85,6 @@ public class FilmController {
         return oldFilm;
 
     }
-
 
     private long getNextIdFilm() {
         long currentMaxId = films.keySet()
