@@ -28,7 +28,7 @@ public class UserService {
     }
 
     public User getUserById(Long userId) {
-        log.info("Получение пользователя с id {}",  userId);
+        log.info("Получение пользователя с id {}", userId);
         return userStorage.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователя с id " + userId + " нет."));
     }
