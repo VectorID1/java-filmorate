@@ -3,10 +3,9 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
-/**
- * Film.
- */
 @Data
 public class Film {
     Long id;
@@ -14,4 +13,9 @@ public class Film {
     LocalDate releaseDate;
     Integer duration;
     String name;
+    Set<Long> likes = new HashSet<>();
+
+    public Integer getLikeValue() {
+        return likes.size();
+    }
 }
