@@ -56,12 +56,30 @@ public class UserService {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
 
+        user.getOutgoingRequests().add(friendId);
+        friend.getIncomingRequests().add(userId);
+
+        userStorage.update(user);
+        userStorage.update(friend);
+        log.info("Пользователи {} сделал запрос добавления в друзья пользователю {}.", user.getName(), friend.getName());
+    }
+
+    public void confirmFriend(Long userId, Long friendId) {
+        User user = getUserById(userId);
+        User friend = getUserById(friendId);
+        if (!friend.getOutgoingRequests().contains(userId)) {
+            throw new NotFoundException("Нет запроса на дружбу от пользователя " + friend.getName());
+        }
+
+        user.getIncomingRequests().remove(friendId);
+        friend.getOutgoingRequests().remove(userId);
+
         user.getFriends().add(friendId);
         friend.getFriends().add(userId);
 
         userStorage.update(user);
         userStorage.update(friend);
-        log.info("Пользователи {} и {} теперь друзья!!!", user.getName(), friend.getName());
+        log.info("Пользователи {} и {} теперь друзья", user.getName(), friend.getName());
     }
 
     public void removeFriend(Long userId, Long friendId) {

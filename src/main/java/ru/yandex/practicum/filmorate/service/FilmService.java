@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,13 +57,10 @@ public class FilmService {
     }
 
     public void addLike(Long filmId, Long userId) {
-        Film film = filmStorage.findById(filmId).orElseThrow(() -> new NotFoundException("Фильм с Id " + filmId
-                + " не найден."));
-        User user = userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User  с Id " + userId
-                + " не найден."));
+        Film film = filmStorage.findById(filmId).orElseThrow(() -> new NotFoundException("Фильм с Id " + filmId + " не найден."));
+        User user = userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User  с Id " + userId + " не найден."));
         if (film.getLikes().contains(userId)) {
-            throw new ValidationException(String.format("Пользователь %s уже лайкал фильм : %s",
-                    user.getName(), film.getName()));
+            throw new ValidationException(String.format("Пользователь %s уже лайкал фильм : %s", user.getName(), film.getName()));
         }
         film.getLikes().add(userId);
         filmStorage.update(film);
@@ -71,14 +69,11 @@ public class FilmService {
     }
 
     public void removeLike(Long filmId, Long userId) {
-        Film film = filmStorage.findById(filmId).orElseThrow(() -> new NotFoundException("Фильм с Id " + filmId
-                + " не найден."));
-        User user = userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User  с Id " + userId
-                + "не найден."));
+        Film film = filmStorage.findById(filmId).orElseThrow(() -> new NotFoundException("Фильм с Id " + filmId + " не найден."));
+        User user = userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User  с Id " + userId + "не найден."));
 
         if (!film.getLikes().contains(userId)) {
-            throw new ValidationException(String.format("Пользователь %s не лайкал %s фильм!",
-                    user.getName(), film.getName()));
+            throw new ValidationException(String.format("Пользователь %s не лайкал %s фильм!", user.getName(), film.getName()));
         }
         film.getLikes().remove(userId);
         filmStorage.update(film);
@@ -92,10 +87,7 @@ public class FilmService {
             log.debug("Установлено значение по умолчанию = {}", count);
         }
         log.info("Получение списка популярных фильмов");
-        return filmStorage.findAll().stream()
-                .sorted((f1, f2) -> Integer.compare(f2.getLikeValue(), f1.getLikeValue()))
-                .limit(count)
-                .collect(Collectors.toList());
+        return filmStorage.findAll().stream().sorted((f1, f2) -> Integer.compare(f2.getLikeValue(), f1.getLikeValue())).limit(count).collect(Collectors.toList());
 
     }
 
@@ -115,6 +107,13 @@ public class FilmService {
         if (film.getDuration() <= 0) {
             log.warn("Некорректная продолжительность фильма: {}", film.getDuration());
             throw new ValidationException("Продолжительность фильма должна быть положительным числом");
+        }
+//        if (film.getMpa() == null) {
+//            log.warn("Передан пустой рейтинг MPA");
+//            throw new ValidationException("Рейтинг фильма (MPA) не может быть пустым");
+//        }
+        if (film.getGenres() == null) {
+            film.setGenres(new HashSet<>());
         }
     }
 
