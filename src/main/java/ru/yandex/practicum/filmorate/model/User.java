@@ -15,4 +15,8 @@ public class User {
     LocalDate birthday;
     String email;
     Set<Long> friends = new HashSet<>();
+    Set<Long> outgoingRequests = new HashSet<>();
+    Set<Long> incomingRequests = new HashSet<>();
+
+
 }
