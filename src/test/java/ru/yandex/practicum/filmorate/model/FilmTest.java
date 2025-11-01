@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.model;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -15,15 +14,14 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FilmTest {
-    private FilmController filmController;
+    private FilmService filmService;
     private Film film;
 
     @BeforeEach
     void setFilm() {
         FilmStorage filmStorage = new InMemoryFilmStorage();
         UserStorage userStorage = new InMemoryUserStorage();
-        FilmService filmService = new FilmService(userStorage, filmStorage);
-        filmController = new FilmController(filmService);
+        filmService = new FilmService(userStorage, filmStorage);
         film = new Film();
         film.setName("testFilm");
         film.setDescription("testDescribtion123123123123123");
@@ -34,35 +32,35 @@ class FilmTest {
 
     @Test
     void nameFilmNoValid() {
-        assertDoesNotThrow(() -> filmController.addFilm(film));
+        assertDoesNotThrow(() -> filmService.addFilm(film));
         film.setName("");
-        assertThrows(ValidationException.class, () -> filmController.addFilm(film));
+        assertThrows(ValidationException.class, () -> filmService.addFilm(film));
         film.setName(null);
-        assertThrows(ValidationException.class, () -> filmController.addFilm(film));
+        assertThrows(ValidationException.class, () -> filmService.addFilm(film));
     }
 
     @Test
-    void describtionNoValid() {
+    void descriptionNoValid() {
         film.setDescription("jdjdjjhdfjklsdfklsdfuihuejnsdfkjbsdfgsdufjbsfbnskjdfdshfukjbsdfnsdbfhsdgfudskjfbsjdfbsds" +
                 "sdkfbsdkjfbsdmfn sjdfhsdkjfnsdmf sdjkfbhsdjkfbnsndmf sdhfgsdjkfhsdjfbsdhfbjdfbmsdn fhdfsdhfbsdfjhsdb" +
                 "skjfbsdkjfbskdjnfsdhfsdkhfbsdknfbhsdfbgshdbfsf nsjbsfjsbdfnsdbfjhdsbfnsd csjhcbhds");
-        assertThrows(ValidationException.class, () -> filmController.addFilm(film));
+        assertThrows(ValidationException.class, () -> filmService.addFilm(film));
     }
 
     @Test
-    void dateReliseNoValid() {
+    void dateReleaseNoValid() {
         film.setReleaseDate(LocalDate.of(1700, 10, 25));
-        assertThrows(ValidationException.class, () -> filmController.addFilm(film));
+        assertThrows(ValidationException.class, () -> filmService.addFilm(film));
     }
 
     @Test
     void durationNoValid() {
         film.setDuration(-300);
-        assertThrows(ValidationException.class, () -> filmController.addFilm(film));
+        assertThrows(ValidationException.class, () -> filmService.addFilm(film));
         film.setDuration(-1);
-        assertThrows(ValidationException.class, () -> filmController.addFilm(film));
+        assertThrows(ValidationException.class, () -> filmService.addFilm(film));
         film.setDuration(0);
-        assertThrows(ValidationException.class, () -> filmController.addFilm(film));
+        assertThrows(ValidationException.class, () -> filmService.addFilm(film));
     }
 
 }
