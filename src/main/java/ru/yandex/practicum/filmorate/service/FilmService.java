@@ -99,6 +99,10 @@ public class FilmService {
     }
 
     private void validateFilm(Film film) {
+        if (film.getMpa() == null) {
+            log.warn("Передан пустой рейтинг MPA");
+            throw new ValidationException("Рейтинг фильма (MPA) не может быть пустым");
+        }
         if (film.getName() == null || film.getName().isBlank()) {
             log.warn("Передано пустое название фильма");
             throw new ValidationException("Название не может быть пустым");
@@ -115,10 +119,7 @@ public class FilmService {
             log.warn("Некорректная продолжительность фильма: {}", film.getDuration());
             throw new ValidationException("Продолжительность фильма должна быть положительным числом");
         }
-        if (film.getMpa() == null) {
-            log.warn("Передан пустой рейтинг MPA");
-            throw new ValidationException("Рейтинг фильма (MPA) не может быть пустым");
-        }
+
         if (film.getMpa().getId() > 5 || film.getMpa().getId() < 1) {
             log.warn("Некорректный Id MPA");
             throw new NotFoundException("Неправильный Id MPA");
