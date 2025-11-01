@@ -99,10 +99,6 @@ public class FilmService {
     }
 
     private void validateFilm(Film film) {
-        if (film.getMpa() == null) {
-            log.warn("Передан пустой рейтинг MPA");
-            throw new ValidationException("Рейтинг фильма (MPA) не может быть пустым");
-        }
         if (film.getName() == null || film.getName().isBlank()) {
             log.warn("Передано пустое название фильма");
             throw new ValidationException("Название не может быть пустым");

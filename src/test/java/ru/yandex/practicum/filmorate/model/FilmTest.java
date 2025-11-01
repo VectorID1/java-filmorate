@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class FilmTest {
     private FilmService filmService;
     private Film film;
+    private Mpa mpa;
 
     @BeforeEach
     void setFilm() {
@@ -23,10 +24,15 @@ class FilmTest {
         UserStorage userStorage = new InMemoryUserStorage();
         filmService = new FilmService(userStorage, filmStorage);
         film = new Film();
+        mpa = new Mpa();
+        mpa.setId(1);
+        mpa.setName("G");
+        mpa.setDescription("123");
         film.setName("testFilm");
         film.setDescription("testDescribtion123123123123123");
         film.setDuration(100);
         film.setReleaseDate(LocalDate.of(2000, 10, 15));
+        film.setMpa(mpa);
     }
 
 
