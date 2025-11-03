@@ -59,7 +59,6 @@ public class FilmDbStorage implements FilmStorage {
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             saveGenres(film.getId(), film.getGenres());
         }
-
         return film;
     }
 
@@ -202,10 +201,10 @@ public class FilmDbStorage implements FilmStorage {
         if (filmIds.isEmpty()) return Map.of();
 
         String sql = """
-        SELECT fg.film_id, g.id AS genre_id, g.name AS genre_name
-        FROM film_genres fg
-        JOIN genres g ON fg.genre_id = g.id
-        WHERE fg.film_id IN (""" +
+                SELECT fg.film_id, g.id AS genre_id, g.name AS genre_name
+                FROM film_genres fg
+                JOIN genres g ON fg.genre_id = g.id
+                WHERE fg.film_id IN (""" +
                 filmIds.stream().map(id -> "?").collect(Collectors.joining(",")) + ")";
 
         return jdbcTemplate.query(sql, (ResultSetExtractor<Map<Long, Set<Genre>>>) rs -> {
@@ -237,11 +236,11 @@ public class FilmDbStorage implements FilmStorage {
 
     private Set<Genre> loadGenres(Long filmId) {
         String sql = """
-        SELECT g.id, g.name 
-        FROM film_genres fg
-        JOIN genres g ON fg.genre_id = g.id
-        WHERE fg.film_id = ?
-        """;
+                SELECT g.id, g.name 
+                FROM film_genres fg
+                JOIN genres g ON fg.genre_id = g.id
+                WHERE fg.film_id = ?
+                """;
 
         List<Genre> genres = jdbcTemplate.query(sql, (rs, rowNum) -> {
             Genre genre = new Genre();
@@ -252,12 +251,14 @@ public class FilmDbStorage implements FilmStorage {
 
         return new HashSet<>(genres);
     }
+
     private Mpa loadMpaForFilm(Film film) {
         if (film.getMpa() == null) return null;
 
         return mpaStorage.findById(film.getMpa().getId())
                 .orElse(null);
     }
+
     private void loadAllMpaForFilms(List<Film> films) {
         if (films.isEmpty()) return;
 

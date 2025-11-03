@@ -7,5 +7,4 @@ public class Mpa {
     private long id;
     private String name;
     private String description;
-
 }

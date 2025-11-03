@@ -112,20 +112,21 @@ public class FilmService {
             log.debug("Установлено значение по умолчанию = {}", count);
         }
         log.info("Получение списка популярных фильмов");
-                List<Film> films = filmStorage.findPopularFilms(count);
-         return films.stream()
-                 .map(filmRowMapper::toFilmResponse)
-                 .collect(Collectors.toList());
+        List<Film> films = filmStorage.findPopularFilms(count);
+        return films.stream()
+                .map(filmRowMapper::toFilmResponse)
+                .collect(Collectors.toList());
     }
+
     private void validateMpaExists(Long mpaId) {
-       if(!mpaStorage.existsMpaById(mpaId)) {
-           throw new NotFoundException("Mpa с Id " + mpaId + " нет.");
+        if (!mpaStorage.existsMpaById(mpaId)) {
+            throw new NotFoundException("Mpa с Id " + mpaId + " нет.");
         }
     }
+
     private void validateGenreExists(Set<Genre> genres) {
         genreStorage.validateGenresExist(genres);
     }
-
 
     private void validateFilm(Film film) {
         if (film.getName() == null || film.getName().isBlank()) {

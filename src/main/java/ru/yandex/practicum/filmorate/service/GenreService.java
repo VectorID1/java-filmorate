@@ -15,11 +15,11 @@ public class GenreService {
         this.genreStorage = genreStorage;
     }
 
-    public List<Genre> getAllGenres () {
+    public List<Genre> getAllGenres() {
         return genreStorage.findAll();
     }
 
-    public Genre getGenreById (Long id) {
-        return genreStorage.findById(id).orElseThrow(() -> new NotFoundException("Жанра с id " +  id + "нет"));
+    public Genre getGenreById(Long id) {
+        return genreStorage.findById(id).orElseThrow(() -> new NotFoundException("Жанра с id " + id + "нет"));
     }
 }

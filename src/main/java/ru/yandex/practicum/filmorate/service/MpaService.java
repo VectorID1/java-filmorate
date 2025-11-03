@@ -14,12 +14,12 @@ public class MpaService {
     MpaService(MpaStorage mpaStorage) {
         this.mpaStorage = mpaStorage;
     }
+
     public List<Mpa> findAllMpa() {
         return mpaStorage.findAll();
     }
-    public Mpa getMpaById (Long id) {
+
+    public Mpa getMpaById(Long id) {
         return mpaStorage.findById(id).orElseThrow(() -> new NotFoundException("Mpa  с Id " + id + " нет"));
     }
-
-
 }

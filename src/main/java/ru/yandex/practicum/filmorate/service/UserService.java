@@ -64,7 +64,7 @@ public class UserService {
 
     public List<User> getFriends(Long userId) {
         User user = getUserById(userId);
-        log.info("Получение списка друзей пользователя {}",user.getName());
+        log.info("Получение списка друзей пользователя {}", user.getName());
         return userStorage.findAllByIds(new ArrayList<>(user.getFriends()));
     }
 
@@ -72,7 +72,7 @@ public class UserService {
         Set<Long> commonFriends = new HashSet<>(getUserById(userId1).getFriends());
         commonFriends.retainAll(getUserById(userId2).getFriends());
 
-        log.info("Получение списка общих друзей пользователей: {} и {}", userId1,userId2);
+        log.info("Получение списка общих друзей пользователей: {} и {}", userId1, userId2);
 
         if (commonFriends.isEmpty()) {
             return List.of();

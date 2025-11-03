@@ -48,8 +48,8 @@ public class InMemoryUserStorage implements UserStorage {
         }
 
 
-        users.put(userId,user);
-        users.put(friendId,friend);
+        users.put(userId, user);
+        users.put(friendId, friend);
     }
 
     @Override

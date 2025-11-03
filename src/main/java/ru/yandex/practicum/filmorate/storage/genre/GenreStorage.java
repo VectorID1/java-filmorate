@@ -14,5 +14,4 @@ public interface GenreStorage {
 
     void validateGenresExist(Set<Genre> genres);
 
-
 }

@@ -15,5 +15,4 @@ public class User {
     LocalDate birthday;
     String email;
     Set<Long> friends = new HashSet<>();
-
 }
