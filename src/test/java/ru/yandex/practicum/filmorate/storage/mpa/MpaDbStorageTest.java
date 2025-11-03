@@ -95,6 +95,7 @@ class MpaDbStorageTest {
                     assertThat(m).hasNoNullFieldsOrProperties();
                 });
     }
+
     @Test
     public void findByAllWhenEmptyList() {
         List<Mpa> mpa = mpaStorage.findAllByIds(List.of());

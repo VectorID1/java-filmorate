@@ -25,33 +25,27 @@ class GenreDbStorageTest {
         List<Genre> genres = genreStorage.findAll();
 
         assertThat(genres).hasSize(6);
-        assertThat(genres)
-                .extracting(Genre::getName)
-                .containsExactly("Комедия", "Драма", "Мультфильм", "Триллер", "Документальный", "Боевик");
+        assertThat(genres).extracting(Genre::getName).containsExactly("Комедия", "Драма", "Мультфильм", "Триллер", "Документальный", "Боевик");
     }
 
     @Test
     public void testFindGenreById() {
         Optional<Genre> genreOptional = genreStorage.findById(1L);
 
-        assertThat(genreOptional)
-                .isPresent()
-                .hasValueSatisfying(genre -> {
-                    assertThat(genre.getId()).isEqualTo(1L);
-                    assertThat(genre.getName()).isEqualTo("Комедия");
-                });
+        assertThat(genreOptional).isPresent().hasValueSatisfying(genre -> {
+            assertThat(genre.getId()).isEqualTo(1L);
+            assertThat(genre.getName()).isEqualTo("Комедия");
+        });
     }
 
     @Test
     public void testFindGenreById1() {
         Optional<Genre> genre = genreStorage.findById(1L);
 
-        assertThat(genre)
-                .isPresent()
-                .hasValueSatisfying(g -> {
-                    assertThat(g.getId()).isEqualTo(1L);
-                    assertThat(g.getName()).isEqualTo("Комедия");
-                });
+        assertThat(genre).isPresent().hasValueSatisfying(g -> {
+            assertThat(g.getId()).isEqualTo(1L);
+            assertThat(g.getName()).isEqualTo("Комедия");
+        });
     }
 
     @Test
@@ -65,37 +59,24 @@ class GenreDbStorageTest {
     public void testFindAll() {
         List<Genre> genres = genreStorage.findAll();
 
-        assertThat(genres)
-                .extracting(Genre::getName)
-                .containsExactly(
-                        "Комедия",
-                        "Драма",
-                        "Мультфильм",
-                        "Триллер",
-                        "Документальный",
-                        "Боевик"
-                );
+        assertThat(genres).extracting(Genre::getName).containsExactly("Комедия", "Драма", "Мультфильм", "Триллер", "Документальный", "Боевик");
     }
 
     @Test
     public void testGenreProperties() {
         Optional<Genre> genreOptional = genreStorage.findById(1L);
 
-        assertThat(genreOptional)
-                .isPresent()
-                .hasValueSatisfying(genre -> {
-                    assertThat(genre).hasFieldOrPropertyWithValue("id", 1L);
-                    assertThat(genre).hasFieldOrPropertyWithValue("name", "Комедия");
-                    assertThat(genre).hasNoNullFieldsOrProperties();
-                });
+        assertThat(genreOptional).isPresent().hasValueSatisfying(genre -> {
+            assertThat(genre).hasFieldOrPropertyWithValue("id", 1L);
+            assertThat(genre).hasFieldOrPropertyWithValue("name", "Комедия");
+            assertThat(genre).hasNoNullFieldsOrProperties();
+        });
     }
 
     @Test
     public void testGenreOrderShouldBeSortedById() {
         List<Genre> genres = genreStorage.findAll();
 
-        assertThat(genres)
-                .extracting(Genre::getId)
-                .containsExactly(1L, 2L, 3L, 4L, 5L, 6L);
+        assertThat(genres).extracting(Genre::getId).containsExactly(1L, 2L, 3L, 4L, 5L, 6L);
     }
 }

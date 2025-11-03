@@ -89,12 +89,12 @@ class FilmDbStorageTest {
     void testUpdate() {
         Film film = filmStorage.save(createTestFilm("Old Name", mpaStorage.findById(1L).get()));
         Film updatedFilm = new Film();
-                updatedFilm.setId(film.getId());
-                updatedFilm.setName("New Name");
-                updatedFilm.setDescription("New Description");
-                updatedFilm.setReleaseDate(film.getReleaseDate());
-                updatedFilm.setDuration(150);
-                updatedFilm.setMpa(mpaStorage.findById(2L).get());
+        updatedFilm.setId(film.getId());
+        updatedFilm.setName("New Name");
+        updatedFilm.setDescription("New Description");
+        updatedFilm.setReleaseDate(film.getReleaseDate());
+        updatedFilm.setDuration(150);
+        updatedFilm.setMpa(mpaStorage.findById(2L).get());
 
         Film result = filmStorage.update(updatedFilm);
 
@@ -199,11 +199,11 @@ class FilmDbStorageTest {
 
     private Film createTestFilm(String name, Mpa mpa) {
         Film film = new Film();
-            film.setName(name);
-            film.setDescription("Test describtion");
-            film.setReleaseDate(LocalDate.of(1990,2,14));
-            film.setDuration(122);
-            film.setMpa(mpa);
+        film.setName(name);
+        film.setDescription("Test describtion");
+        film.setReleaseDate(LocalDate.of(1990, 2, 14));
+        film.setDuration(122);
+        film.setMpa(mpa);
         return film;
     }
 
@@ -212,7 +212,7 @@ class FilmDbStorageTest {
         user.setName("Test user");
         user.setEmail(email);
         user.setLogin(login);
-        user.setBirthday(LocalDate.of(1989,10,15));
+        user.setBirthday(LocalDate.of(1989, 10, 15));
         return user;
     }
 

@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.mappers.UserMapper;
 
@@ -61,12 +60,11 @@ class UserDbStorageTest {
 
         Optional<User> userInDb = userStorage.findById(savedUser1.getId());
         assertThat(userInDb).isPresent();
-        assertThat(userInDb)
-                .hasValueSatisfying(user -> {
-                    assertThat(user.getName()).isEqualTo(savedUser1.getName());
-                    assertThat(user.getEmail()).isEqualTo(savedUser1.getEmail());
-                    assertThat(user.getId()).isEqualTo(savedUser1.getId());
-                });
+        assertThat(userInDb).hasValueSatisfying(user -> {
+            assertThat(user.getName()).isEqualTo(savedUser1.getName());
+            assertThat(user.getEmail()).isEqualTo(savedUser1.getEmail());
+            assertThat(user.getId()).isEqualTo(savedUser1.getId());
+        });
 
     }
 
