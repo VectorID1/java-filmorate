@@ -236,7 +236,7 @@ public class FilmDbStorage implements FilmStorage {
 
     private Set<Genre> loadGenres(Long filmId) {
         String sql = """
-                SELECT g.id, g.name 
+                SELECT g.id, g.name
                 FROM film_genres fg
                 JOIN genres g ON fg.genre_id = g.id
                 WHERE fg.film_id = ?
