@@ -11,7 +11,7 @@ public interface MpaStorage {
 
     Optional<Mpa> findById(Long id);
 
-    boolean existsMpaById (Long id);
+    boolean existsMpaById(Long id);
 
     List<Mpa> findAllByIds(List<Long> mpaIds);
 
