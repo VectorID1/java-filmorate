@@ -47,8 +47,6 @@ public class InMemoryUserStorage implements UserStorage {
             throw new NotFoundException("Пользователь не найден");
         }
 
-        user.getOutgoingRequests().add(friendId);
-        friend.getIncomingRequests().add(userId);
 
         users.put(userId,user);
         users.put(friendId,friend);
@@ -61,15 +59,16 @@ public class InMemoryUserStorage implements UserStorage {
 
         if (user != null) {
             user.getFriends().remove(friendId);
-            user.getOutgoingRequests().remove(friendId);
-            user.getIncomingRequests().remove(friendId);
 
         }
         if (friend != null) {
             friend.getFriends().remove(userId);
-            friend.getIncomingRequests().remove(userId);
-            friend.getOutgoingRequests().remove(userId);
         }
+    }
+
+    @Override
+    public List<User> findAllByIds(List<Long> usersId) {
+        return List.of();
     }
 
     private long getNextIdUser() {

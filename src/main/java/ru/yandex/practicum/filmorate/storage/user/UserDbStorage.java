@@ -17,6 +17,7 @@ import java.sql.PreparedStatement;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @Primary
@@ -130,13 +131,21 @@ public class UserDbStorage implements UserStorage {
         jdbcTemplate.update(sql, userId, friendId);
     }
 
+    @Override
+    public List<User> findAllByIds(List<Long> userIds) {
+        if (userIds.isEmpty()) return List.of();
+
+        String placeholders = userIds.stream().map(id -> "?").collect(Collectors.joining(","));
+        String sql = "SELECT * FROM users WHERE id IN (" + placeholders + ")";
+
+        return jdbcTemplate.query(sql, userMapper, userIds.toArray());
+    }
+
     private void loadFriends(User user) {
         Long userId = user.getId();
         String sqlFriends = "SELECT friend_id FROM user_friends WHERE user_id = ?";
         List<Long> friends = jdbcTemplate.queryForList(sqlFriends, Long.class, userId);
         user.setFriends(new HashSet<>(friends));
 
-        user.setOutgoingRequests(new HashSet<>());
-        user.setIncomingRequests(new HashSet<>());
     }
 }

@@ -8,5 +8,4 @@ public class Mpa {
     private String name;
     private String description;
 
-
 }

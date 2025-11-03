@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.mappers.UserMapper;
 
@@ -22,51 +23,69 @@ class UserDbStorageTest {
     private final UserDbStorage userStorage;
 
     @Test
-    public void testFindUserById() {
-        User user = createTestUser("test@mail.com", "testlogin");
-        User savedUser = userStorage.save(user);
+    public void testSaveUserWithGeneratedId() {
 
-        Optional<User> userOptional = userStorage.findById(savedUser.getId());
-
-        assertThat(userOptional)
-                .isPresent()
-                .hasValueSatisfying(foundUser ->
-                        assertThat(foundUser).hasFieldOrPropertyWithValue("id", savedUser.getId())
-                );
-    }
-
-    @Test
-    public void testSaveUser() {
-        User user = createTestUser("save@mail.com", "savelogin");
+        User user = createTestUser("test@mail.com", "testLogin");
 
         User savedUser = userStorage.save(user);
 
         assertThat(savedUser.getId()).isNotNull();
-        assertThat(savedUser.getEmail()).isEqualTo("save@mail.com");
+        assertThat(savedUser.getEmail()).isEqualTo("test@mail.com");
+        assertThat(savedUser.getId()).isEqualTo(user.getId());
+
     }
+
 
     @Test
     public void testUpdateUser() {
-        User user = createTestUser("update@mail.com", "updatelogin");
+        User user = createTestUser("update@mail.com", "updateLogin");
         User savedUser = userStorage.save(user);
 
         savedUser.setName("Updated Name");
+        savedUser.setEmail("newEmail@mail.com");
         User updatedUser = userStorage.update(savedUser);
 
         assertThat(updatedUser.getName()).isEqualTo("Updated Name");
+        assertThat(updatedUser.getEmail()).isEqualTo("newEmail@mail.com");
+    }
+
+    @Test
+    public void testFindUserById() {
+        User user1 = createTestUser("user1@mail.com", "user1");
+        User user2 = createTestUser("user2@mail.com", "user2");
+        User user3 = createTestUser("user3@mail.com", "user3");
+
+        User savedUser1 = userStorage.save(user1);
+        userStorage.save(user2);
+        userStorage.save(user3);
+
+        Optional<User> userInDb = userStorage.findById(savedUser1.getId());
+        assertThat(userInDb).isPresent();
+        assertThat(userInDb)
+                .hasValueSatisfying(user -> {
+                    assertThat(user.getName()).isEqualTo(savedUser1.getName());
+                    assertThat(user.getEmail()).isEqualTo(savedUser1.getEmail());
+                    assertThat(user.getId()).isEqualTo(savedUser1.getId());
+                });
+
     }
 
     @Test
     public void testFindAllUsers() {
         User user1 = createTestUser("user1@mail.com", "user1");
         User user2 = createTestUser("user2@mail.com", "user2");
+        User user3 = createTestUser("user3@mail.com", "user3");
+        User user4 = createTestUser("user4@mail.com", "user4");
 
         userStorage.save(user1);
         userStorage.save(user2);
+        userStorage.save(user3);
+        userStorage.save(user4);
+
 
         List<User> users = userStorage.findAll();
 
-        assertThat(users).hasSize(2);
+        assertThat(users).hasSize(4);
     }
 
     @Test
@@ -125,7 +144,7 @@ class UserDbStorageTest {
         User user = new User();
         user.setEmail(email);
         user.setLogin(login);
-        user.setName("Test User");
+        user.setName("Default name");
         user.setBirthday(LocalDate.of(1990, 1, 1));
         return user;
     }

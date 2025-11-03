@@ -10,4 +10,7 @@ public class Genre {
     private String name;
 
 
+    public Genre() {
+
+    }
 }

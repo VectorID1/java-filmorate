@@ -8,10 +8,10 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -51,6 +51,8 @@ public class UserService {
     }
 
     public void addFriend(Long userId, Long friendId) {
+        getUserById(userId);
+        getUserById(friendId);
         userStorage.addFriend(userId, friendId);
         log.info("Пользователь {} добавил в друзья пользователя {}", userId, friendId);
     }
@@ -62,22 +64,20 @@ public class UserService {
 
     public List<User> getFriends(Long userId) {
         User user = getUserById(userId);
-        return user.getFriends().stream()
-                .map(this::getUserById)
-                .collect(Collectors.toList());
+        log.info("Получение списка друзей пользователя {}",user.getName());
+        return userStorage.findAllByIds(new ArrayList<>(user.getFriends()));
     }
 
     public List<User> getCommonFriends(Long userId1, Long userId2) {
-        User user1 = getUserById(userId1);
-        User user2 = getUserById(userId2);
+        Set<Long> commonFriends = new HashSet<>(getUserById(userId1).getFriends());
+        commonFriends.retainAll(getUserById(userId2).getFriends());
 
-        Set<Long> commonFriends = new HashSet<>(user1.getFriends());
-        commonFriends.retainAll(user2.getFriends());
-        log.info("Получение списка общих друзей пользователей: {} и {}", user1.getName(), user2.getName());
+        log.info("Получение списка общих друзей пользователей: {} и {}", userId1,userId2);
 
-        return commonFriends.stream()
-                .map(this::getUserById)
-                .collect(Collectors.toList());
+        if (commonFriends.isEmpty()) {
+            return List.of();
+        }
+        return userStorage.findAllByIds(new ArrayList<>(commonFriends));
     }
 
     private void validateUser(User user) {

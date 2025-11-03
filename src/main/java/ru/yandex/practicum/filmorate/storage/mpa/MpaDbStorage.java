@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.storage.mpa.mappers.MpaMapper;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class MpaDbStorage implements MpaStorage {
@@ -35,4 +36,23 @@ public class MpaDbStorage implements MpaStorage {
             return Optional.empty();
         }
     }
+
+    @Override
+    public boolean existsMpaById(Long id) {
+        String sql = "SELECT COUNT(*) FROM mpa WHERE id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class,id);
+        return count > 0;
+    }
+
+    @Override
+    public List<Mpa> findAllByIds(List<Long> mpaIds) {
+        String placeholders = mpaIds.stream()
+                .map(id -> "?")
+                .collect(Collectors.joining(","));
+
+        String sql = "SELECT * FROM mpa WHERE id IN (" + placeholders + ")";
+
+        return jdbcTemplate.query(sql, mpaMapper, mpaIds.toArray());
+    }
+
 }

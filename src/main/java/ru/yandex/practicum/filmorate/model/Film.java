@@ -14,12 +14,7 @@ public class Film {
     Integer duration;
     String name;
     Set<Long> likes = new HashSet<>();
-    Set<Long> genreIds = new HashSet<>();
+    Set<Genre> genres = new HashSet<>();
     Mpa mpa;
-
-    public Integer getLikeValue() {
-        return likes.size();
-    }
-
 
 }

@@ -3,16 +3,22 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.request.FilmRequest;
+import ru.yandex.practicum.filmorate.dto.response.FilmResponse;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.mapper.FilmRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -20,39 +26,54 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
+    private final FilmRowMapper filmRowMapper;
+    private final MpaStorage mpaStorage;
+    private final GenreStorage genreStorage;
 
     public FilmService(@Qualifier("userDbStorage") UserStorage userStorage,
-                       @Qualifier("filmDbStorage") FilmStorage filmStorage) {
+                       @Qualifier("filmDbStorage") FilmStorage filmStorage,
+                       FilmRowMapper filmRowMapper, MpaStorage mpaStorage, GenreStorage genreStorage) {
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
+        this.filmRowMapper = filmRowMapper;
+        this.mpaStorage = mpaStorage;
+        this.genreStorage = genreStorage;
     }
 
-    public List<Film> getAllFilm() {
-        log.info("Получение списка всех фильмов");
-        return filmStorage.findAll();
+    public List<FilmResponse> getAllFilms() {
+        List<Film> films = filmStorage.findAll();
+        return films.stream()
+                .map(filmRowMapper::toFilmResponse)
+                .collect(Collectors.toList());
     }
 
-    public Film getFilmById(Long filmId) {
-        return filmStorage.findById(filmId).orElseThrow(() -> {
+    public FilmResponse getFilmById(Long filmId) {
+        Film film = filmStorage.findById(filmId).orElseThrow(() -> {
             log.warn("Запрошен несуществующий фильм с ID: {}", filmId);
             return new NotFoundException(String.format("Фильм с id %s не найден", filmId));
         });
+        return filmRowMapper.toFilmResponse(film);
     }
 
-    public Film addFilm(Film film) {
+    public FilmResponse addFilm(FilmRequest filmRequest) {
+        Film film = filmRowMapper.toFilm(filmRequest);
         validateFilm(film);
+        validateMpaExists(film.getMpa().getId());
+        validateGenreExists(film.getGenres());
         Film savedFilm = filmStorage.save(film);
         log.info("Фильм добавлен: {}", film.getName());
-        return savedFilm;
+        return filmRowMapper.toFilmResponse(savedFilm);
     }
 
-    public Film updateFilm(Film film) {
-        filmStorage.findById(film.getId()).orElseThrow(() -> new NotFoundException("Фильм не найден"));
+    public FilmResponse updateFilm(FilmRequest filmRequest) {
+        Film film = filmRowMapper.toFilm(filmRequest);
         validateFilm(film);
+        validateMpaExists(film.getMpa().getId());
+        validateGenreExists(film.getGenres());
         log.info("Валидация в FilmService прошла");
         Film updatedFilm = filmStorage.update(film);
         log.info("Фильм {} обновлён", updatedFilm.getName());
-        return updatedFilm;
+        return filmRowMapper.toFilmResponse(updatedFilm);
     }
 
     public void addLike(Long filmId, Long userId) {
@@ -85,18 +106,26 @@ public class FilmService {
         log.info("Пользователь {} удалил лайк фильма {}", user.getName(), film.getName());
     }
 
-    public List<Film> getPopularFilms(Integer count) {
+    public List<FilmResponse> getPopularFilms(Integer count) {
         if (count == null || count <= 0) {
             count = 10;
             log.debug("Установлено значение по умолчанию = {}", count);
         }
         log.info("Получение списка популярных фильмов");
-
-        return filmStorage.findAll().stream()
-                .sorted(Comparator.comparingInt((Film f) -> f.getLikes().size()).reversed())
-                .limit(count)
-                .collect(Collectors.toList());
+                List<Film> films = filmStorage.findPopularFilms(count);
+         return films.stream()
+                 .map(filmRowMapper::toFilmResponse)
+                 .collect(Collectors.toList());
     }
+    private void validateMpaExists(Long mpaId) {
+       if(!mpaStorage.existsMpaById(mpaId)) {
+           throw new NotFoundException("Mpa с Id " + mpaId + " нет.");
+        }
+    }
+    private void validateGenreExists(Set<Genre> genres) {
+        genreStorage.validateGenresExist(genres);
+    }
+
 
     private void validateFilm(Film film) {
         if (film.getName() == null || film.getName().isBlank()) {
@@ -114,19 +143,6 @@ public class FilmService {
         if (film.getDuration() <= 0) {
             log.warn("Некорректная продолжительность фильма: {}", film.getDuration());
             throw new ValidationException("Продолжительность фильма должна быть положительным числом");
-        }
-
-        if (film.getMpa().getId() > 5 || film.getMpa().getId() < 1) {
-            log.warn("Некорректный Id MPA");
-            throw new NotFoundException("Неправильный Id MPA");
-        }
-        if (film.getGenreIds() != null && !film.getGenreIds().isEmpty()) {
-            for (Long genre : film.getGenreIds()) {
-                if (genre == null || genre < 1 || genre > 6) {
-                    log.warn("Некорректный ID Genre");
-                    throw new NotFoundException("Некорректный ID Genre: " + genre);
-                }
-            }
         }
     }
 }
