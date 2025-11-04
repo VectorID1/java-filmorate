@@ -26,16 +26,16 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
-    private final FilmMapper filmRowMapper;
+    private final FilmMapper filmMapper;
     private final MpaStorage mpaStorage;
     private final GenreStorage genreStorage;
 
     public FilmService(@Qualifier("userDbStorage") UserStorage userStorage,
                        @Qualifier("filmDbStorage") FilmStorage filmStorage,
-                       FilmMapper filmRowMapper, MpaStorage mpaStorage, GenreStorage genreStorage) {
+                       FilmMapper filmMapper, MpaStorage mpaStorage, GenreStorage genreStorage) {
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
-        this.filmRowMapper = filmRowMapper;
+        this.filmMapper = filmMapper;
         this.mpaStorage = mpaStorage;
         this.genreStorage = genreStorage;
     }
@@ -43,7 +43,7 @@ public class FilmService {
     public List<FilmResponse> getAllFilms() {
         List<Film> films = filmStorage.findAll();
         return films.stream()
-                .map(filmRowMapper::toFilmResponse)
+                .map(filmMapper::toFilmResponse)
                 .collect(Collectors.toList());
     }
 
@@ -52,28 +52,28 @@ public class FilmService {
             log.warn("Запрошен несуществующий фильм с ID: {}", filmId);
             return new NotFoundException(String.format("Фильм с id %s не найден", filmId));
         });
-        return filmRowMapper.toFilmResponse(film);
+        return filmMapper.toFilmResponse(film);
     }
 
     public FilmResponse addFilm(FilmRequest filmRequest) {
-        Film film = filmRowMapper.toFilm(filmRequest);
+        Film film = filmMapper.toFilm(filmRequest);
         validateFilm(film);
         validateMpaExists(film.getMpa().getId());
         validateGenreExists(film.getGenres());
         Film savedFilm = filmStorage.save(film);
         log.info("Фильм добавлен: {}", film.getName());
-        return filmRowMapper.toFilmResponse(savedFilm);
+        return filmMapper.toFilmResponse(savedFilm);
     }
 
     public FilmResponse updateFilm(FilmRequest filmRequest) {
-        Film film = filmRowMapper.toFilm(filmRequest);
+        Film film = filmMapper.toFilm(filmRequest);
         validateFilm(film);
         validateMpaExists(film.getMpa().getId());
         validateGenreExists(film.getGenres());
         log.info("Валидация в FilmService прошла");
         Film updatedFilm = filmStorage.update(film);
         log.info("Фильм {} обновлён", updatedFilm.getName());
-        return filmRowMapper.toFilmResponse(updatedFilm);
+        return filmMapper.toFilmResponse(updatedFilm);
     }
 
     public void addLike(Long filmId, Long userId) {
@@ -114,7 +114,7 @@ public class FilmService {
         log.info("Получение списка популярных фильмов");
         List<Film> films = filmStorage.findPopularFilms(count);
         return films.stream()
-                .map(filmRowMapper::toFilmResponse)
+                .map(filmMapper::toFilmResponse)
                 .collect(Collectors.toList());
     }
 
