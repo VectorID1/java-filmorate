@@ -13,7 +13,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.film.mappers.FilmMapper;
+import ru.yandex.practicum.filmorate.storage.film.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 
 import java.sql.Date;
@@ -27,12 +27,12 @@ import java.util.stream.Collectors;
 @Qualifier("filmDbStorage")
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final FilmMapper filmMapper;
+    private final FilmRowMapper filmRowMapper;
     private final MpaStorage mpaStorage;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, FilmMapper filmMapper, MpaStorage mpaStorage) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, FilmRowMapper filmRowMapper, MpaStorage mpaStorage) {
         this.jdbcTemplate = jdbcTemplate;
-        this.filmMapper = filmMapper;
+        this.filmRowMapper = filmRowMapper;
         this.mpaStorage = mpaStorage;
     }
 
@@ -114,7 +114,7 @@ public class FilmDbStorage implements FilmStorage {
     public Optional<Film> findById(Long id) {
         String sql = "SELECT * FROM films WHERE id = ?";
         try {
-            Film film = jdbcTemplate.queryForObject(sql, filmMapper, id);
+            Film film = jdbcTemplate.queryForObject(sql, filmRowMapper, id);
             film.setLikes(loadLikes(id));
             film.setGenres(loadGenres(id));
             film.setMpa(loadMpaForFilm(film));
@@ -127,7 +127,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> findAll() {
         String sql = "SELECT * FROM films";
-        List<Film> films = jdbcTemplate.query(sql, filmMapper);
+        List<Film> films = jdbcTemplate.query(sql, filmRowMapper);
         loadAllLikesForFilms(films);
         loadAllGenresForFilms(films);
         loadAllMpaForFilms(films);
@@ -156,7 +156,7 @@ public class FilmDbStorage implements FilmStorage {
                 ORDER BY likes_count DESC
                 LIMIT ?
                 """;
-        List<Film> films = jdbcTemplate.query(sql, filmMapper, limit);
+        List<Film> films = jdbcTemplate.query(sql, filmRowMapper, limit);
         loadAllLikesForFilms(films);
         loadAllGenresForFilms(films);
 

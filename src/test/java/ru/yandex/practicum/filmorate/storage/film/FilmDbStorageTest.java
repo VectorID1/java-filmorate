@@ -11,11 +11,11 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.film.mappers.FilmMapper;
+import ru.yandex.practicum.filmorate.storage.film.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
-import ru.yandex.practicum.filmorate.storage.mpa.mappers.MpaMapper;
+import ru.yandex.practicum.filmorate.storage.mpa.mappers.MpaRowMapper;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
-import ru.yandex.practicum.filmorate.storage.user.mappers.UserMapper;
+import ru.yandex.practicum.filmorate.storage.user.mappers.UserRowMapper;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @JdbcTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({FilmDbStorage.class, FilmMapper.class, MpaMapper.class, MpaDbStorage.class, UserDbStorage.class, UserMapper.class})
+@Import({FilmDbStorage.class, FilmRowMapper.class, MpaRowMapper.class, MpaDbStorage.class, UserDbStorage.class, UserRowMapper.class})
 class FilmDbStorageTest {
 
     private final FilmDbStorage filmStorage;

@@ -7,7 +7,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.mpa.mappers.MpaMapper;
+import ru.yandex.practicum.filmorate.storage.mpa.mappers.MpaRowMapper;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +15,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @JdbcTest
-@Import({MpaDbStorage.class, MpaMapper.class})
+@Import({MpaDbStorage.class, MpaRowMapper.class})
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class MpaDbStorageTest {
 

@@ -6,17 +6,13 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dto.request.FilmRequest;
 import ru.yandex.practicum.filmorate.dto.response.FilmResponse;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
-import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 
 import java.util.Set;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FilmRowMapper {
-    private final MpaStorage mpaStorage;
-    private final GenreStorage genreStorage;
+public class FilmMapper {
 
     public Film toFilm(FilmRequest request) {
         Film film = new Film();

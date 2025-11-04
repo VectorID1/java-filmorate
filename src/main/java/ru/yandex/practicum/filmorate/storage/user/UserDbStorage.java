@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.mappers.UserMapper;
+import ru.yandex.practicum.filmorate.storage.user.mappers.UserRowMapper;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -24,11 +24,11 @@ import java.util.stream.Collectors;
 @Qualifier("userDbStorage")
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final UserMapper userMapper;
+    private final UserRowMapper userRowMapper;
 
-    public UserDbStorage(JdbcTemplate jdbcTemplate, UserMapper userMapper) {
+    public UserDbStorage(JdbcTemplate jdbcTemplate, UserRowMapper userRowMapper) {
         this.jdbcTemplate = jdbcTemplate;
-        this.userMapper = userMapper;
+        this.userRowMapper = userRowMapper;
     }
 
     @Override
@@ -86,7 +86,7 @@ public class UserDbStorage implements UserStorage {
     public Optional<User> findById(Long id) {
         String sql = "SELECT * FROM users WHERE id = ?";
         try {
-            User user = jdbcTemplate.queryForObject(sql, userMapper, id);
+            User user = jdbcTemplate.queryForObject(sql, userRowMapper, id);
             loadFriends(user);
             return Optional.of(user);
         } catch (EmptyResultDataAccessException e) {
@@ -97,7 +97,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public List<User> findAll() {
         String sql = "SELECT * FROM users";
-        List<User> users = jdbcTemplate.query(sql, userMapper);
+        List<User> users = jdbcTemplate.query(sql, userRowMapper);
         for (User user : users) {
             loadFriends(user);
         }
@@ -138,7 +138,7 @@ public class UserDbStorage implements UserStorage {
         String placeholders = userIds.stream().map(id -> "?").collect(Collectors.joining(","));
         String sql = "SELECT * FROM users WHERE id IN (" + placeholders + ")";
 
-        return jdbcTemplate.query(sql, userMapper, userIds.toArray());
+        return jdbcTemplate.query(sql, userRowMapper, userIds.toArray());
     }
 
     private void loadFriends(User user) {
