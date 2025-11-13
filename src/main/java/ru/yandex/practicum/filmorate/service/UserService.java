@@ -8,10 +8,10 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -30,76 +30,60 @@ public class UserService {
     public User getUserById(Long userId) {
         log.info("Получение пользователя с id {}", userId);
         return userStorage.findById(userId).orElseThrow(() ->
-                new NotFoundException("Пользователя с id " + userId + " нет."));
+                new NotFoundException("Пользователь с id " + userId + " не найден"));
     }
 
     public User addUser(User user) {
         validateUser(user);
-        userStorage.save(user);
-        log.info("Пользователь {} добавлен: id = {}", user.getName(), user.getId());
-        return user;
+        User savedUser = userStorage.save(user);
+        log.info("Пользователь {} добавлен: id = {}", savedUser.getName(), savedUser.getId());
+        return savedUser;
     }
-
 
     public User updateUser(User user) {
         userStorage.findById(user.getId()).orElseThrow(() ->
-                new NotFoundException("Пользователя с id " + user.getId() + " нет."));
+                new NotFoundException("Пользователь с id " + user.getId() + " не найден"));
 
         validateUser(user);
-        User updateUser = userStorage.update(user);
-        log.info("Пользователь {} обновлён.", updateUser.getName());
-        return updateUser;
+        User updatedUser = userStorage.update(user);
+        log.info("Пользователь {} обновлён", updatedUser.getName());
+        return updatedUser;
     }
 
-
     public void addFriend(Long userId, Long friendId) {
-        User user = getUserById(userId);
-        User friend = getUserById(friendId);
-
-        user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
-
-        userStorage.update(user);
-        userStorage.update(friend);
-        log.info("Пользователи {} и {} теперь друзья!!!", user.getName(), friend.getName());
+        getUserById(userId);
+        getUserById(friendId);
+        userStorage.addFriend(userId, friendId);
+        log.info("Пользователь {} добавил в друзья пользователя {}", userId, friendId);
     }
 
     public void removeFriend(Long userId, Long friendId) {
-        User user = getUserById(userId);
-        User friend = getUserById(friendId);
-
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
-
-        userStorage.update(user);
-        userStorage.update(friend);
-        log.info("Пользователи {} и {} больше не друзья!!!", user.getName(), friend.getName());
+        userStorage.removeFriend(userId, friendId);
+        log.info("Пользователь {} удалил из друзей пользователя {}", userId, friendId);
     }
 
     public List<User> getFriends(Long userId) {
         User user = getUserById(userId);
-        return user.getFriends().stream()
-                .map(this::getUserById)
-                .collect(Collectors.toList());
+        log.info("Получение списка друзей пользователя {}", user.getName());
+        return userStorage.findAllByIds(new ArrayList<>(user.getFriends()));
     }
 
     public List<User> getCommonFriends(Long userId1, Long userId2) {
-        User user1 = getUserById(userId1);
-        User user2 = getUserById(userId2);
+        Set<Long> commonFriends = new HashSet<>(getUserById(userId1).getFriends());
+        commonFriends.retainAll(getUserById(userId2).getFriends());
 
-        Set<Long> commonFriends = new HashSet<>(user1.getFriends());
-        commonFriends.retainAll(user2.getFriends());
-        log.info("Получение списка общих друзей пользователей: {} и {}", user1.getName(), user2.getName());
+        log.info("Получение списка общих друзей пользователей: {} и {}", userId1, userId2);
 
-        return commonFriends.stream()
-                .map(this::getUserById)
-                .collect(Collectors.toList());
+        if (commonFriends.isEmpty()) {
+            return List.of();
+        }
+        return userStorage.findAllByIds(new ArrayList<>(commonFriends));
     }
 
     private void validateUser(User user) {
         if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
             log.warn("Передан некорректный email: {}", user.getEmail());
-            throw new ValidationException("Email не может быть пустой и должна содержать символ @");
+            throw new ValidationException("Email не может быть пустым и должен содержать символ @");
         }
         if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
             log.warn("Передан некорректный login: {}", user.getLogin());
@@ -107,21 +91,12 @@ public class UserService {
         }
         if (user.getName() == null || user.getName().isBlank()) {
             log.info("Имя пользователя задано автоматически: {}", user.getLogin());
-            user.setName(loginOfName(user));
+            user.setName(user.getLogin());
         }
         if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.warn("Некоректная дата рождения: {}", user.getBirthday());
+            log.warn("Некорректная дата рождения: {}", user.getBirthday());
             throw new ValidationException("Дата рождения не может быть в будущем");
         }
     }
-
-    private String loginOfName(User user) {
-        String newName = user.getName();
-        if (user.getName() == null || user.getName().isBlank()) {
-            newName = user.getLogin();
-        }
-        return newName;
-    }
 }
-
 
